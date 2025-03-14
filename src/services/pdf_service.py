@@ -1,39 +1,55 @@
-from http.client import HTTPException
-
-from src.schemas.pdf_input import PdfInput
-
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel
 import requests
 from io import BytesIO
 from PyPDF2 import PdfReader
+import torch
+
+from src.schemas.pdf_input import PdfInput
+
+from transformers import AutoTokenizer, AutoModel
+import torch
+MODEL_NAME = "bert-base-uncased"
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+model = AutoModel.from_pretrained(MODEL_NAME)
+
+# Создаём свой класс исключений
+class CustomHTTPException(Exception):
+    def __init__(self, status_code: int, detail: str):
+        self.status_code = status_code
+        self.detail = detail
+        super().__init__(f"HTTP {status_code}: {detail}")
 
 
 def process_pdf_to_text_or_tensor(input: PdfInput):
     try:
-        # Проверяем валидность параметров
+
         if input.result not in ["txt", "tensor"]:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=400,
                 detail="Invalid 'result' parameter. Allowed values are 'txt' or 'tensor'."
             )
 
-        # Загружаем PDF
+        print(f"Processing PDF from URL: {input.url}")
         response = requests.get(input.url)
         if response.status_code != 200:
-            raise HTTPException(status_code=400, detail="Could not download the file from the provided URL")
+            raise CustomHTTPException(
+                status_code=400,
+                detail="Could not download the file from the provided URL"
+            )
 
-        # Открываем PDF как бинарный поток
-        pdf_file = io.BytesIO(response.content)
+
+        pdf_file = BytesIO(response.content)
         reader = PdfReader(pdf_file)
 
-        # Извлекаем текст со всех страниц
         all_text = ""
         for page in reader.pages:
             all_text += page.extract_text()
 
-        # Проверяем, был ли текст извлечён
         if not all_text.strip():
-            raise HTTPException(status_code=422, detail="Unable to extract text from the provided PDF")
+            raise CustomHTTPException(
+                status_code=422,
+                detail="Unable to extract text from the provided PDF"
+            )
 
         # Возвращаем результат в зависимости от запроса
         if input.result == "txt":
@@ -64,8 +80,13 @@ def process_pdf_to_text_or_tensor(input: PdfInput):
                 "tensor_dimension": len(sentence_embedding),
             }
 
+    except CustomHTTPException as custom_exc:
+        return {
+            "status_code": custom_exc.status_code,
+            "detail": custom_exc.detail
+        }
     except Exception as e:
         return {
-            "error": str(e),
-            "message": "An error occurred. Please check the URL, file format, or model configuration."
+            "status_code": 500,
+            "detail": f"An unexpected error occurred: {str(e)}"
         }
