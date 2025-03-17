@@ -6,4 +6,8 @@ router = APIRouter()
 
 @router.post("/to-tensor/")
 def pdf_to_text_or_tensor(input: PdfInput):
-    return process_pdf_to_text_or_tensor(input)
+    return process_pdf_to_text_or_tensor(input, "tensor")
+
+@router.post("/to-text/")
+def pdf_to_text_or_tensor(input: PdfInput):
+    return process_pdf_to_text_or_tensor(input, "text")

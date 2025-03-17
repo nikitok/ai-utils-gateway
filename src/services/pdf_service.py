@@ -20,13 +20,13 @@ class CustomHTTPException(Exception):
         super().__init__(f"HTTP {status_code}: {detail}")
 
 
-def process_pdf_to_text_or_tensor(input: PdfInput):
+def process_pdf_to_text_or_tensor(input: PdfInput, format: str):
     try:
 
-        if input.result not in ["txt", "tensor"]:
+        if format not in ["text", "tensor"]:
             raise CustomHTTPException(
                 status_code=400,
-                detail="Invalid 'result' parameter. Allowed values are 'txt' or 'tensor'."
+                detail="Invalid 'result' parameter. Allowed values are 'text' or 'tensor'."
             )
 
         print(f"Processing PDF from URL: {input.url}")
@@ -52,12 +52,12 @@ def process_pdf_to_text_or_tensor(input: PdfInput):
             )
 
         # Возвращаем результат в зависимости от запроса
-        if input.result == "txt":
+        if format == "text":
             return {
                 "message": "Text extracted successfully",
                 "text": all_text
             }
-        elif input.result == "tensor":
+        elif format == "tensor":
             # Токенизация текста
             inputs = tokenizer(
                 all_text,
