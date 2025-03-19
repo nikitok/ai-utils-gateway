@@ -16,5 +16,7 @@ dependencies = [
     "transformers>=4.33.2",
     "requests>=2.32.3",
     "pdfreader>=0.1.15",
-    "pypdf2>=3.0.1"
+    "pypdf2>=3.0.1",
+    "pyvespa>=0.55.0",
+    "vespacli>=8.497.38",
 ]
