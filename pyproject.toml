@@ -19,4 +19,8 @@ dependencies = [
     "pypdf2>=3.0.1",
     "pyvespa>=0.55.0",
     "vespacli>=8.497.38",
+    "openai-whisper>=20240930",
+    "pydub>=0.25.1",
+    "ffmpeg>=1.4",
+    "openai>=1.68.2",
 ]
