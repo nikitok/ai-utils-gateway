@@ -8,6 +8,7 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 from typing import List
 
+MODEL_NAME = "multilingual-e5-small-onnx-qint8"
 tokenizer = AutoTokenizer.from_pretrained('deepfile/multilingual-e5-small-onnx-qint8')
 model = AutoModel.from_pretrained('deepfile/multilingual-e5-small-onnx-qint8')
 
