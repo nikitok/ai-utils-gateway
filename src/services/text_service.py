@@ -8,9 +8,8 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 from typing import List
 
-MODEL_NAME = "bert-base-uncased"
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-model = AutoModel.from_pretrained(MODEL_NAME)
+tokenizer = AutoTokenizer.from_pretrained('deepfile/multilingual-e5-small-onnx-qint8')
+model = AutoModel.from_pretrained('deepfile/multilingual-e5-small-onnx-qint8')
 
 
 def process_text_to_tensor(input: TextInput):
