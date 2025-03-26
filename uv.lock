@@ -1549,6 +1549,7 @@ source = { editable = "." }
 dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "ffmpeg" },
+    { name = "httpx" },
     { name = "openai" },
     { name = "openai-whisper" },
     { name = "pdf2image" },
@@ -1567,6 +1568,7 @@ dependencies = [
 requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.100.0" },
     { name = "ffmpeg", specifier = ">=1.4" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "openai", specifier = ">=1.68.2" },
     { name = "openai-whisper", specifier = ">=20240930" },
     { name = "pdf2image", specifier = ">=1.17.0" },
