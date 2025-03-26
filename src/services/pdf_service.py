@@ -8,9 +8,11 @@ from src.schemas.pdf_input import PdfInput
 
 from transformers import AutoTokenizer, AutoModel
 import torch
+
 MODEL_NAME = "bert-base-uncased"
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 model = AutoModel.from_pretrained(MODEL_NAME)
+
 
 # Создаём свой класс исключений
 class CustomHTTPException(Exception):
@@ -23,12 +25,6 @@ class CustomHTTPException(Exception):
 def process_pdf_to_text_or_tensor(input: PdfInput, format: str):
     try:
 
-        if format not in ["text", "tensor"]:
-            raise CustomHTTPException(
-                status_code=400,
-                detail="Invalid 'result' parameter. Allowed values are 'text' or 'tensor'."
-            )
-
         print(f"Processing PDF from URL: {input.url}")
         response = requests.get(input.url)
         if response.status_code != 200:
@@ -36,7 +32,6 @@ def process_pdf_to_text_or_tensor(input: PdfInput, format: str):
                 status_code=400,
                 detail="Could not download the file from the provided URL"
             )
-
 
         pdf_file = BytesIO(response.content)
         reader = PdfReader(pdf_file)
@@ -51,35 +46,9 @@ def process_pdf_to_text_or_tensor(input: PdfInput, format: str):
                 detail="Unable to extract text from the provided PDF"
             )
 
-        # Возвращаем результат в зависимости от запроса
-        if format == "text":
-            return {
-                "message": "Text extracted successfully",
-                "text": all_text
-            }
-        elif format == "tensor":
-            # Токенизация текста
-            inputs = tokenizer(
-                all_text,
-                return_tensors="pt",
-                truncation=True,
-                padding="max_length",
-                max_length=512
-            )
-
-            # Получение эмбеддингов с помощью модели
-            with torch.no_grad():
-                outputs = model(**inputs)
-
-            token_embeddings = outputs.last_hidden_state
-            sentence_embedding = torch.mean(token_embeddings, dim=1).squeeze().tolist()
-
-            return {
-                "message": "Tensor generated successfully",
-                "tensor": sentence_embedding,
-                "tensor_dimension": len(sentence_embedding),
-            }
-
+        return {
+            "text": all_text
+        }
     except CustomHTTPException as custom_exc:
         return {
             "status_code": custom_exc.status_code,
@@ -90,3 +59,10 @@ def process_pdf_to_text_or_tensor(input: PdfInput, format: str):
             "status_code": 500,
             "detail": f"An unexpected error occurred: {str(e)}"
         }
+
+
+if __name__ == "__main__":
+    e = process_pdf_to_text_or_tensor(
+        PdfInput(url="https://api.directual.com/fileUploaded/rag/web/9644bf00-83c6-4ae4-80b8-927aba929f73.pdf"),
+        format="text")
+    print(e)
