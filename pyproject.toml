@@ -23,4 +23,5 @@ dependencies = [
     "pydub>=0.25.1",
     "ffmpeg>=1.4",
     "openai>=1.68.2",
+    "pdf2image>=1.17.0",
 ]
