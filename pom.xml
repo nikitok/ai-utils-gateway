@@ -6,7 +6,7 @@
 
     <groupId>com.directual</groupId>
     <artifactId>ai-utils</artifactId>
-    <version>18.3.16</version>
+    <version>18.3.17</version>
     <packaging>jar</packaging>
 
     <properties>
