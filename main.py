@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
     print("e5 loaded.")
     #
     # # Добавляем модель в состояние приложения (app.state) для последующего использования
-    # app.state.model = model
+    app.state.whisper_model = model
 
     yield
 
