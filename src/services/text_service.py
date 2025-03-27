@@ -8,12 +8,18 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 from typing import List
 
-MODEL_NAME = "multilingual-e5-small-onnx-qint8"
-tokenizer = AutoTokenizer.from_pretrained('deepfile/multilingual-e5-small-onnx-qint8')
-model = AutoModel.from_pretrained('deepfile/multilingual-e5-small-onnx-qint8')
+# MODEL_NAME = "multilingual-e5-small-onnx-qint8"
+# tokenizer = AutoTokenizer.from_pretrained('deepfile/multilingual-e5-small-onnx-qint8')
+# model = AutoModel.from_pretrained('deepfile/multilingual-e5-small-onnx-qint8')
 
 
 def process_text_to_tensor(input: TextInput):
+
+    from main import fastAPI
+    tokenizer = fastAPI.state.tokenizer
+    model = fastAPI.state.pretrained
+    model_name = fastAPI.state.pretrained_name
+
     try:
         inputs = tokenizer(
             input.text,
@@ -30,7 +36,7 @@ def process_text_to_tensor(input: TextInput):
         sentence_embedding = torch.mean(token_embeddings, dim=1).squeeze().tolist()
 
         return {
-            "model_name": MODEL_NAME,
+            "model_name": model_name,
             "max_length": input.max_length,
 
             "embedding": sentence_embedding,
@@ -44,6 +50,12 @@ def process_text_to_tensor(input: TextInput):
 
 
 def process_text_to_tokens(input: TextInput):
+
+    from main import fastAPI
+    tokenizer = fastAPI.state.tokenizer
+    model = fastAPI.state.pretrained
+    model_name = fastAPI.state.pretrained_name
+
     try:
         # Токенизация текста
         tokenized = tokenizer(
@@ -58,7 +70,7 @@ def process_text_to_tokens(input: TextInput):
         input_ids = tokenized["input_ids"]
 
         return {
-            "model_name": MODEL_NAME,
+            "model_name": model_name,
             "text": input.text,
             "max_length": input.max_length,
             "tokens": tokens,
