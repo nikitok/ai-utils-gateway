@@ -17,6 +17,18 @@ fastAPI.include_router(pdf_router, prefix="/pdf", tags=["PDF Processing"])
 fastAPI.include_router(mp3_router, prefix="/mp3", tags=["MP3 Processing"])
 fastAPI.include_router(openai_router, prefix="/openai", tags=["OpenAI Processing"])
 
+
+@fastAPI.get("/health/live", tags=["Health Check"])
+async def health_live():
+    return {"status": "alive"}
+
+
+@fastAPI.get("/health/ready", tags=["Health Check"])
+async def health_ready():
+    # if not check_database_connection():
+    #     return {"status": "unhealthy"}
+    return {"status": "ready"}
+
 @fastAPI.get("/")
 async def root():
     return {"message": "Text to Tensor API is live!"}
