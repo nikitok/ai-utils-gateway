@@ -7,3 +7,7 @@ class OpenAiPdfInput(BaseModel):
 class OpenAiCompletion(BaseModel):
     key: str
     text: str
+
+class OpenAiCompletionCustomCoT(BaseModel):
+    key: str
+    body: str
