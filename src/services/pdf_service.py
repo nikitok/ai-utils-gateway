@@ -63,6 +63,6 @@ def process_pdf_to_text_or_tensor(input: PdfInput, format: str):
 
 if __name__ == "__main__":
     e = process_pdf_to_text_or_tensor(
-        PdfInput(url="https://api.directual.com/fileUploaded/rag/web/9644bf00-83c6-4ae4-80b8-927aba929f73.pdf"),
+        PdfInput(url="file:///Users/noviiden/java/projects/directual.api/ai/ai-utils/livro_a1.pdf"),
         format="text")
     print(e)
