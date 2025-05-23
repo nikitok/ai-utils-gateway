@@ -11,3 +11,4 @@ class OpenAiCompletion(BaseModel):
 class OpenAiCompletionCustomCoT(BaseModel):
     key: str
     body: str
+    response_format: str = None
