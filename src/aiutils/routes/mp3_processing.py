@@ -2,8 +2,8 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import Annotated
 
 from aiutils.schemas.mp3_input import Mp3Input
-from aiutils.services.mp3_service import Mp3Service
-from aiutils.core.exceptions import Mp3DownloadError, Mp3TranscriptionError, Mp3ProcessingError
+from aiutils.schemas.mp3_response import Mp3TranscriptionResponse
+from aiutils.services.mp3_service import Mp3Service, Mp3DownloadError, Mp3TranscriptionError, Mp3ProcessingError
 from aiutils.core.logger import get_logger
 from aiutils.core.dependencies import get_mp3_service
 
@@ -13,11 +13,12 @@ router = APIRouter()
 
 @router.post("/to-text/", 
     summary="Transcribe MP3 to text",
-    response_description="Transcribed text and detected language")
+    response_description="Transcribed text and detected language",
+    response_model=Mp3TranscriptionResponse)
 async def mp3_to_text(
     mp3_input: Mp3Input,
     mp3_service: Annotated[Mp3Service, Depends(get_mp3_service)]
-):
+) -> Mp3TranscriptionResponse:
     """
     Transcribe MP3 audio to text using Whisper.
     
@@ -28,7 +29,7 @@ async def mp3_to_text(
         mp3_service: MP3 processing service
         
     Returns:
-        Dictionary with transcribed text and detected language
+        Mp3TranscriptionResponse with transcribed text and detected language
         
     Raises:
         Mp3DownloadError: If MP3 download fails
@@ -37,7 +38,11 @@ async def mp3_to_text(
     """
     try:
         result = await mp3_service.mp3ToText(mp3_input)
-        return result
+        # Convert internal TranscribeResult to API Mp3TranscriptionResponse
+        return Mp3TranscriptionResponse(
+            text=result.text,
+            language=result.language
+        )
         
     except Mp3DownloadError as e:
         logger.error(f"MP3 download failed: {e.detail}")

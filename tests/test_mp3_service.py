@@ -3,8 +3,7 @@ from pathlib import Path
 from unittest.mock import Mock
 
 from aiutils.schemas.mp3_input import Mp3Input
-from aiutils.services.mp3_service import Mp3Service
-from aiutils.core.exceptions import Mp3DownloadError
+from aiutils.services.mp3_service import Mp3Service, Mp3DownloadError, TranscribeResult
 
 
 # Get the path to test data
@@ -42,12 +41,10 @@ class TestMp3ToText:
         
         result = await mp3_service.mp3ToText(mp3_input)
         
-        # Check that method returns expected structure
-        assert isinstance(result, dict)
-        assert "text" in result
-        assert "detected_language" in result
-        assert result["text"] == "This is a test transcription"
-        assert result["detected_language"] == "en"
+        # Check that method returns TranscribeResult
+        assert isinstance(result, TranscribeResult)
+        assert result.text == "This is a test transcription"
+        assert result.language == "en"
         
         # Verify Whisper was called
         assert mp3_service.whisper_model.transcribe.called
