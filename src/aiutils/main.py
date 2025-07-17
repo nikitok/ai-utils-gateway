@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from aiutils.core.utils import lifespan
 from aiutils.core.logger import configure_uvicorn_logging
 from aiutils.routes.text_processing import router as text_router
@@ -28,7 +28,26 @@ async def health_live():
 
 @app.get("/health/ready", tags=["Health Check"])
 async def health_ready():
-    return {"status": "ready"}
+    """
+    Readiness probe for Kubernetes.
+    Returns 200 only when all models are loaded and ready.
+    """
+    if hasattr(app.state, 'is_ready') and app.state.is_ready:
+        return {
+            "status": "ready",
+            "models": {
+                "whisper": hasattr(app.state, 'whisper_model'),
+                "tokenizer": hasattr(app.state, 'tokenizer'),
+                "embeddings": hasattr(app.state, 'pretrained')
+            }
+        }
+    else:
+        # Return 503 Service Unavailable if not ready
+        raise HTTPException(
+            status_code=503,
+            detail="Service is starting up, models are being loaded",
+            headers={"Retry-After": "30"}  # Suggest retry after 30 seconds
+        )
 
 
 @app.get("/")
