@@ -14,17 +14,17 @@ logger = get_logger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("Starting application...")
 
-    # Загружаем модель при запуске приложения
+    # loading a big Whisper model
     logger.info("Loading Whisper model...")
     model = whisper.load_model(settings.whisper_model)
-    logger.info("Whisper model loaded")
-    logger.info(f"Loading tokenizer and model: {settings.model_name}")
+    logger.info("Whisper model loaded!")
+    logger.info(f"Loading tokenizer and model: {settings.model_name}...")
     app.state.tokenizer = AutoTokenizer.from_pretrained(settings.model_name)
     app.state.pretrained = AutoModel.from_pretrained(settings.model_name)
     app.state.pretrained_name = settings.model_name.split('/')[-1]
-    logger.info("Models loaded successfully")
-    #
-    # # Добавляем модель в состояние приложения (app.state) для последующего использования
+    logger.info("Tokenizer model loaded successfully!")
+
+    # set a wisper model for usage in project
     app.state.whisper_model = model
 
     yield

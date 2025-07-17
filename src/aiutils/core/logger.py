@@ -9,7 +9,6 @@ from rich.logging import RichHandler
 # Create a global console instance
 console = Console()
 
-
 def setup_logger(name: str = None, level: int = logging.INFO) -> logging.Logger:
     """
     Setup a logger with Rich formatting
@@ -32,7 +31,9 @@ def setup_logger(name: str = None, level: int = logging.INFO) -> logging.Logger:
             console=console,
             rich_tracebacks=True,
             show_time=True,
-            show_path=False
+            show_path=False,
+            omit_repeated_times=False,
+            log_time_format="[%m/%d/%y %H:%M:%S]"
         )
         handler.setFormatter(logging.Formatter("%(message)s"))
         
