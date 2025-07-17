@@ -11,7 +11,7 @@ from aiutils.schemas.pdf_input import PdfInput
 logger = get_logger(__name__)
 
 
-# Создаём свой класс исключений
+# Create custom exception class
 class CustomHTTPException(Exception):
     def __init__(self, status_code: int, detail: str):
         self.status_code = status_code

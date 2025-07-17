@@ -40,3 +40,30 @@ class ProcessingError(HTTPException):
             status_code=status_code,
             detail=f"Processing error: {message}"
         )
+
+
+class Mp3ProcessingError(HTTPException):
+    """Base exception for MP3 processing errors."""
+    def __init__(self, message: str, status_code: int = 500):
+        super().__init__(
+            status_code=status_code,
+            detail=f"MP3 processing error: {message}"
+        )
+
+
+class Mp3DownloadError(Mp3ProcessingError):
+    """Exception for MP3 download failures."""
+    def __init__(self, url: str, reason: Optional[str] = None):
+        message = f"Failed to download MP3 from {url}"
+        if reason:
+            message += f": {reason}"
+        super().__init__(message, status_code=400)
+
+
+class Mp3TranscriptionError(Mp3ProcessingError):
+    """Exception for MP3 transcription failures."""
+    def __init__(self, reason: str):
+        super().__init__(
+            message=f"Failed to transcribe audio: {reason}",
+            status_code=422
+        )

@@ -1,18 +1,11 @@
-from aiutils.schemas.text_input import TextInput
-from aiutils.core.exceptions import ModelNotLoadedError, ProcessingError
-
-from fastapi import FastAPI, Body
-from pydantic import BaseModel
-from transformers import AutoTokenizer, AutoModel
-import torch
-from typing import List
 import logging
 
-logger = logging.getLogger(__name__)
+import torch
 
-# MODEL_NAME = "multilingual-e5-small-onnx-qint8"
-# tokenizer = AutoTokenizer.from_pretrained('deepfile/multilingual-e5-small-onnx-qint8')
-# model = AutoModel.from_pretrained('deepfile/multilingual-e5-small-onnx-qint8')
+from aiutils.core.exceptions import ModelNotLoadedError, ProcessingError
+from aiutils.schemas.text_input import TextInput
+
+logger = logging.getLogger(__name__)
 
 
 def process_text_to_tensor(input: TextInput, models):
@@ -62,7 +55,7 @@ def process_text_to_tokens(input: TextInput, models):
     model_name = models.pretrained_name
 
     try:
-        # Токенизация текста
+        # Text tokenization
         tokenized = tokenizer(
             input.text,
             truncation=True,
@@ -70,7 +63,7 @@ def process_text_to_tokens(input: TextInput, models):
             max_length=input.max_length
         )
 
-        # Вытаскиваем токены и их числовое представление
+        # Extract tokens and their numerical representation
         tokens = tokenizer.convert_ids_to_tokens(tokenized["input_ids"])
         input_ids = tokenized["input_ids"]
 
