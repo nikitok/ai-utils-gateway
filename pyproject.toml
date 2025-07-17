@@ -3,9 +3,10 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "text-to-tensor-api"
+name = "ai-utils"
 version = "0.1.0"
-description = "API to transform text to tensor"
+description = "API to transform text to tensor and more utilities"
+requires-python = ">=3.12"
 authors = [
     { name = "Nikita Navalikhin", email = "noviiden@gmail.com" },
 ]
@@ -25,4 +26,9 @@ dependencies = [
     "openai>=1.68.2",
     "pdf2image>=1.17.0",
     "httpx>=0.28.1",
+    "pytest>=8.4.1",
+    "pydantic-settings>=2.0.0",
 ]
+
+[project.scripts]
+ai-utils = "src.aiutils.main:app"
