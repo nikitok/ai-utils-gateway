@@ -1,11 +1,11 @@
 from io import BytesIO
 
 from PyPDF2 import PdfReader
+from fastapi import Request
 
 from aiutils.core.exceptions import PDFExtractionError, FileDownloadError
 from aiutils.core.logger import get_logger
 from aiutils.core.security import download_file_safely
-from aiutils.main import fastAPI
 from aiutils.schemas.pdf_input import PdfInput
 
 logger = get_logger(__name__)
@@ -19,10 +19,10 @@ class CustomHTTPException(Exception):
         super().__init__(f"HTTP {status_code}: {detail}")
 
 
-async def process_pdf_to_text_or_tensor(input: PdfInput, format: str):
+async def process_pdf_to_text_or_tensor(input: PdfInput, format: str, request: Request):
     try:
-        tokenizer = fastAPI.state.tokenizer
-        model = fastAPI.state.pretrained
+        tokenizer = request.app.state.tokenizer
+        model = request.app.state.pretrained
         
         logger.info(f"Processing PDF from URL: {input.url}")
         
