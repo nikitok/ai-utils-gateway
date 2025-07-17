@@ -1,9 +1,13 @@
 from fastapi import FastAPI
 from aiutils.core.utils import lifespan
+from aiutils.core.logger import configure_uvicorn_logging
 from aiutils.routes.text_processing import router as text_router
 from aiutils.routes.pdf_processing import router as pdf_router
 from aiutils.routes.mp3_processing import router as mp3_router
 from aiutils.routes.openai_processing import router as openai_router
+
+# Configure logging before creating the app
+configure_uvicorn_logging()
 
 app = FastAPI(
     title="AI utils",
@@ -29,6 +33,6 @@ async def health_ready():
 
 @app.get("/")
 async def root():
-    return {"message": "Text to Tensor API is live!"}
+    return {"message": "API to transform text to tensor and more utilities"}
 
 

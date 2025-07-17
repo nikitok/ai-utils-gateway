@@ -2,12 +2,48 @@
 Centralized logging configuration with Rich formatting
 """
 import logging
+import sys
 from rich.console import Console
 from rich.logging import RichHandler
 
 
 # Create a global console instance
 console = Console()
+
+# Common logging configuration
+LOG_FORMAT = "%(message)s"
+DATE_FORMAT = "[%m/%d/%y %H:%M:%S]"
+LOG_LEVEL = logging.INFO
+
+
+def configure_uvicorn_logging():
+    """Configure uvicorn and FastAPI loggers to use our format"""
+    # Get uvicorn loggers
+    loggers = [
+        logging.getLogger("uvicorn"),
+        logging.getLogger("uvicorn.error"),
+        logging.getLogger("uvicorn.access"),
+        logging.getLogger("fastapi")
+    ]
+    
+    for logger in loggers:
+        logger.handlers.clear()
+        
+        handler = RichHandler(
+            console=console,
+            rich_tracebacks=True,
+            show_time=True,
+            show_path=False,
+            omit_repeated_times=False,
+            log_time_format=DATE_FORMAT,
+            markup=True,
+            keywords=[]
+        )
+        handler.setFormatter(logging.Formatter(LOG_FORMAT))
+        logger.addHandler(handler)
+        logger.setLevel(LOG_LEVEL)
+        logger.propagate = False
+
 
 def setup_logger(name: str = None, level: int = logging.INFO) -> logging.Logger:
     """
@@ -33,9 +69,11 @@ def setup_logger(name: str = None, level: int = logging.INFO) -> logging.Logger:
             show_time=True,
             show_path=False,
             omit_repeated_times=False,
-            log_time_format="[%m/%d/%y %H:%M:%S]"
+            log_time_format=DATE_FORMAT,
+            markup=True,
+            keywords=[]
         )
-        handler.setFormatter(logging.Formatter("%(message)s"))
+        handler.setFormatter(logging.Formatter(LOG_FORMAT))
         
         logger.addHandler(handler)
         logger.propagate = False
@@ -57,4 +95,4 @@ def get_logger(name: str = None) -> logging.Logger:
 
 
 # Export console for direct use when needed
-__all__ = ['console', 'setup_logger', 'get_logger']
+__all__ = ['console', 'setup_logger', 'get_logger', 'configure_uvicorn_logging']
