@@ -37,8 +37,8 @@ async def mp3_to_text(
         Mp3ProcessingError: If processing fails
     """
     try:
-        result = await mp3_service.mp3ToText(mp3_input)
-        # Convert internal TranscribeResult to API Mp3TranscriptionResponse
+        result = await mp3_service.transcribe(mp3_input)
+        # Convert internal Mp3TranscribeResult to API Mp3TranscriptionResponse
         return Mp3TranscriptionResponse(
             text=result.text,
             language=result.language

@@ -6,6 +6,7 @@ import logging
 
 from aiutils.core.config import settings
 from aiutils.core.logger import get_logger
+from aiutils.core.dependencies import container
 
 # Get logger for this module
 logger = get_logger(__name__)
@@ -21,7 +22,10 @@ async def lifespan(app: FastAPI):
     logger.info("Loading Whisper model...")
     model = whisper.load_model(settings.whisper_model)
     app.state.whisper_model = model
-    logger.info("Whisper model loaded!")
+    
+    # Initialize DI container with whisper model
+    container.whisper_model.override(model)
+    logger.info("Whisper model loaded and DI container initialized!")
 
     # loading a embeding model
     logger.info(f"Loading tokenizer and model: {settings.model_name}...")
