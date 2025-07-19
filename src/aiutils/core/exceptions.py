@@ -67,3 +67,38 @@ class Mp3TranscriptionError(Mp3ProcessingError):
             message=f"Failed to transcribe audio: {reason}",
             status_code=422
         )
+
+
+class CustomHTTPException(Exception):
+    """Custom HTTP exception for non-FastAPI contexts."""
+    def __init__(self, status_code: int, detail: str):
+        self.status_code = status_code
+        self.detail = detail
+        super().__init__(f"HTTP {status_code}: {detail}")
+
+
+class OpenAIProcessingError(HTTPException):
+    """Base exception for OpenAI processing errors."""
+    def __init__(self, message: str, status_code: int = 500):
+        super().__init__(
+            status_code=status_code,
+            detail=f"OpenAI processing error: {message}"
+        )
+
+
+class OpenAIVisionError(OpenAIProcessingError):
+    """Exception for OpenAI Vision API failures."""
+    def __init__(self, reason: str):
+        super().__init__(
+            message=f"Vision API failed: {reason}",
+            status_code=422
+        )
+
+
+class OpenAICompletionError(OpenAIProcessingError):
+    """Exception for OpenAI completion failures."""
+    def __init__(self, reason: str):
+        super().__init__(
+            message=f"Completion failed: {reason}",
+            status_code=422
+        )
