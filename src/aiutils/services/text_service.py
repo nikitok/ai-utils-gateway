@@ -50,9 +50,11 @@ class TextService:
     
     def set_models(self, tokenizer: AutoTokenizer, model: AutoModel, model_name: str) -> None:
         """Set or update the tokenizer and model."""
+        self.logger.info(f"Setting models, model name: {model_name}")
         self.tokenizer = tokenizer
         self.model = model
         self.model_name = model_name
+        self.logger.debug("Models successfully set")
     
     def process_to_tensor(self, input: TextInput) -> TextEmbeddingResult:
         """
@@ -68,10 +70,14 @@ class TextService:
             ModelNotLoadedError: If tokenizer or model not loaded
             ProcessingError: If embedding generation fails
         """
+        self.logger.info(f"Processing text to tensor, text length: {len(input.text)}, max_length: {input.max_length}")
+        
         if not self.tokenizer or not self.model:
+            self.logger.error("Model or tokenizer not loaded")
             raise ModelNotLoadedError("multilingual-e5-small")
         
         try:
+            self.logger.debug(f"Tokenizing text with model: {self.model_name}")
             inputs = self.tokenizer(
                 input.text,
                 return_tensors="pt",
@@ -80,12 +86,15 @@ class TextService:
                 max_length=input.max_length
             )
 
+            self.logger.debug("Generating embeddings")
             with torch.no_grad():
                 outputs = self.model(**inputs)
 
             token_embeddings = outputs.last_hidden_state
             sentence_embedding = torch.mean(token_embeddings, dim=1).squeeze().tolist()
 
+            self.logger.info(f"Successfully generated embeddings, dimension: {len(sentence_embedding)}")
+            
             return TextEmbeddingResult(
                 model_name=self.model_name,
                 max_length=input.max_length,
@@ -93,9 +102,10 @@ class TextService:
                 embedding_dimension=len(sentence_embedding)
             )
         except ModelNotLoadedError:
+            # Re-raise known exceptions
             raise
         except Exception as e:
-            self.logger.error(f"Failed to generate embeddings: {str(e)}")
+            self.logger.error(f"Unexpected error during embedding generation: {str(e)}")
             raise ProcessingError(f"Failed to generate embeddings: {str(e)}")
 
     def process_to_tokens(self, input: TextInput) -> TextTokenizationResult:
@@ -112,10 +122,14 @@ class TextService:
             ModelNotLoadedError: If tokenizer not loaded
             ProcessingError: If tokenization fails
         """
+        self.logger.info(f"Processing text to tokens, text length: {len(input.text)}, max_length: {input.max_length}")
+        
         if not self.tokenizer:
+            self.logger.error("Tokenizer not loaded")
             raise ModelNotLoadedError("tokenizer")
         
         try:
+            self.logger.debug(f"Tokenizing text with model: {self.model_name}")
             # Text tokenization
             tokenized = self.tokenizer(
                 input.text,
@@ -128,6 +142,8 @@ class TextService:
             tokens = self.tokenizer.convert_ids_to_tokens(tokenized["input_ids"])
             input_ids = tokenized["input_ids"]
 
+            self.logger.info(f"Successfully tokenized text, token count: {len(tokens)}")
+            
             return TextTokenizationResult(
                 model_name=self.model_name,
                 text=input.text,
@@ -136,7 +152,8 @@ class TextService:
                 input_ids=input_ids
             )
         except ModelNotLoadedError:
+            # Re-raise known exceptions
             raise
         except Exception as e:
-            self.logger.error(f"Failed to tokenize text: {str(e)}")
+            self.logger.error(f"Unexpected error during tokenization: {str(e)}")
             raise ProcessingError(f"Failed to tokenize text: {str(e)}")
