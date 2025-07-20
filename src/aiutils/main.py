@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 from aiutils.core.utils import lifespan
 from aiutils.core.logger import configure_uvicorn_logging
 from aiutils.routes.health import router as health_router
@@ -22,6 +23,9 @@ app.include_router(text_router, prefix="/text", tags=["Text Processing"])
 app.include_router(pdf_router, prefix="/pdf", tags=["PDF Processing"])
 app.include_router(mp3_router, prefix="/mp3", tags=["MP3 Processing"])
 app.include_router(openai_router, prefix="/openai", tags=["OpenAI Processing"])
+
+# Configure Prometheus metrics
+Instrumentator().instrument(app).expose(app)
 
 
 @app.get("/", summary="Welcome", tags=["General"])

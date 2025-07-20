@@ -33,8 +33,8 @@ async def lifespan(app: FastAPI):
     app.state.pretrained = AutoModel.from_pretrained(settings.model_name)
     app.state.pretrained_name = settings.model_name.split('/')[-1]
     container.tokenizer.override(app.state.tokenizer)
-    container.pretrained_model.override(app.state.pretrained_model)
-    container.pretrained_name.override(app.state.pretrained_name)
+    container.pretrained_model.override(app.state.pretrained)
+    container.model_name.override(app.state.pretrained_name)
     logger.info("Tokenizer model loaded successfully!")
     
     # All models loaded, mark as ready
