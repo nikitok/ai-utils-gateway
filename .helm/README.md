@@ -1,6 +1,6 @@
 # Directual UI Helm Chart
 
-This Helm chart deploys Directual UI to Kubernetes using ArgoCD with base + overlays pattern.
+This Helm chart deploys Directual AI Utils to Kubernetes using ArgoCD with base + overlays pattern.
 
 ## Structure
 
@@ -46,24 +46,24 @@ Each overlay (`.helm/overlays/{env}/`) contains:
 ## Environment Configuration
 
 ### Alfa Environment
-- Path: `.helm/overlays/alfa/`
+- Path: `.helm/overlays/staging/`
 - 2 replicas
 - Lower resource limits (256Mi-512Mi memory)
-- Domain: my.alfa.directual.com
+- Domain: ai-utils.alfa.directual.com
 - Auto-sync enabled in ArgoCD
 
 ### Production Environment
 - Path: `.helm/overlays/prod/`
 - 3-10 replicas with HPA
 - Higher resource limits (512Mi-1Gi memory)
-- Domain: app.directual.com
+- Domain: ai-utils.prod.directual.com
 - Manual sync in ArgoCD
 - Pod anti-affinity for high availability
 
 ## ArgoCD Integration
 
 ArgoCD applications point directly to overlay directories:
-- Alfa: `.helm/overlays/alfa/`
+- Alfa: `.helm/overlays/staging/`
 - Prod: `.helm/overlays/prod/`
 
 ArgoCD automatically handles the dependency resolution and applies both base and overlay values.
