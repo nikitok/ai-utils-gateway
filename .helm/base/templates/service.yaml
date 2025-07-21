@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "directual.fullname" . }}
+  labels:
+    {{- include "directual.labels" . | nindent 4 }}
+    {{- if .Values.environment }}
+    environment: {{ .Values.environment }}
+    {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port | default 80 }}
+      targetPort: {{ .Values.service.targetPort | default 3000 }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "directual.selectorLabels" . | nindent 4 }}

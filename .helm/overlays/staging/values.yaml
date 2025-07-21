@@ -1,0 +1,47 @@
+# Alfa (staging) environment overlay values
+# These values override the base chart values
+
+ui:
+  replicaCount: 1
+  
+  # Environment specific configuration
+  namespace: alfa
+  environment: staging
+  
+  image:
+    tag: "v20.0.2"
+  
+  # Additional environment variables
+  env:
+    - name: NODE_ENV
+      value: "production"
+  
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "1000m"
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-directual
+      nginx.ingress.kubernetes.io/proxy-body-size: "64m"
+    hosts:
+      - host: ai-utils.alfa.directual.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: directual-alfa-tls
+        hosts:
+          - ai-utils.alfa.directual.com
+  
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 2
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80

@@ -1,0 +1,66 @@
+# Base values for Directual AI
+# This file contains common configuration shared across all environments
+
+nameOverride: "directual-ai-utils"
+fullnameOverride: ""
+
+image:
+  repository: registry.gitlab.com/directual/ai/directual-ai-utils
+  pullPolicy: Always
+  # Tag will be overridden by CI/CD
+  tag: "latest"
+
+imagePullSecrets:
+  - name: regcredgitlab2
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+
+ingress:
+  enabled: false  # Disabled by default, enabled in environment overlays
+  className: nginx
+  annotations: {}
+  hosts: []
+  tls: []
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+# Health checks
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 80
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 3
+
+livenessProbe:
+  httpGet:
+    path: /live
+    port: 80
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  failureThreshold: 3
+
+# Common environment variables
+env:
+  - name: ENVIR
+    value: "production"
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
