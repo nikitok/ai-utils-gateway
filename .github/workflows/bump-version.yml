@@ -39,21 +39,27 @@ jobs:
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
 
-    - name: Bump version
-      id: bump
+    - name: Get current version
+      id: current
       run: |
-        # Get current version
-        current_version=$(grep "current_version" .bumpversion.cfg | cut -d' ' -f3)
-        echo "Current version: $current_version"
-        
-        # Bump version
-        bump2version ${{ github.event.inputs.version_type }} --verbose
-        
-        # Get new version
-        new_version=$(grep "current_version" .bumpversion.cfg | cut -d' ' -f3)
-        echo "New version: $new_version"
-        echo "new_version=$new_version" >> $GITHUB_OUTPUT
+        current_version=$(grep "current_version" .bumpversion.cfg | cut -d'=' -f2 | tr -d ' ')
         echo "current_version=$current_version" >> $GITHUB_OUTPUT
+
+    - name: Bump version
+      run: |
+        bump2version ${{ github.event.inputs.version_type }} --no-tag --no-commit
+
+    - name: Get new version
+      id: new
+      run: |
+        new_version=$(grep "current_version" .bumpversion.cfg | cut -d'=' -f2 | tr -d ' ')
+        echo "new_version=$new_version" >> $GITHUB_OUTPUT
+
+    - name: Commit and tag
+      run: |
+        git add .
+        git commit -m "Bump version: ${{ steps.current.outputs.current_version }} → ${{ steps.new.outputs.new_version }}"
+        git tag -a "v${{ steps.new.outputs.new_version }}" -m "Bump version: ${{ steps.current.outputs.current_version }} → ${{ steps.new.outputs.new_version }}"
 
     - name: Push changes
       run: |
@@ -63,11 +69,11 @@ jobs:
       uses: peter-evans/create-pull-request@v5
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: "Bump version to ${{ steps.bump.outputs.new_version }}"
-        title: "Bump version to ${{ steps.bump.outputs.new_version }}"
+        commit-message: "Bump version to ${{ steps.new.outputs.new_version }}"
+        title: "Bump version to ${{ steps.new.outputs.new_version }}"
         body: |
           Automated version bump from ${{ github.event.inputs.version_type }}
           
-          New version: ${{ steps.bump.outputs.new_version }}
-        branch: bump-version-${{ steps.bump.outputs.new_version }}
+          New version: ${{ steps.new.outputs.new_version }}
+        branch: bump-version-${{ steps.new.outputs.new_version }}
         delete-branch: true
