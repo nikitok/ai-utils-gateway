@@ -10,7 +10,7 @@ on:
 env:
   GITLAB_REGISTRY: registry.gitlab.com
   GITLAB_PROJECT_PATH: ${{ secrets.GITLAB_PROJECT_PATH }}
-  IMAGE_NAME: directual-ai-utils
+  IMAGE_NAME: ai-utils
 
 jobs:
   build-and-push:
