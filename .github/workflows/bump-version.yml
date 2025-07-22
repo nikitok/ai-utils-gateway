@@ -53,10 +53,11 @@ jobs:
         new_version=$(grep "current_version" .bumpversion.cfg | cut -d' ' -f3)
         echo "New version: $new_version"
         echo "new_version=$new_version" >> $GITHUB_OUTPUT
+        echo "current_version=$current_version" >> $GITHUB_OUTPUT
 
     - name: Push changes
       run: |
-        git push origin main --follow-tags
+        git push origin HEAD:${GITHUB_REF#refs/heads/} --follow-tags
 
     - name: Create Pull Request for version bump
       uses: peter-evans/create-pull-request@v5
