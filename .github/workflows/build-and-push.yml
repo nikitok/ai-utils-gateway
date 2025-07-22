@@ -31,7 +31,7 @@ jobs:
 
     - name: Validate environment variables
       run: |
-        if [ -z "${{ secrets.GITLAB_PROJECT_PATH }}" ]; then
+        if [ -z "${{ env.GITLAB_PROJECT_PATH }}" ]; then
           echo "ERROR: GITLAB_PROJECT_PATH secret is not set"
           echo "Please set GITLAB_PROJECT_PATH in GitHub Secrets (format: group/project)"
           exit 1
