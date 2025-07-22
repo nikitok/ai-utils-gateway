@@ -63,7 +63,8 @@ jobs:
     - name: Get current version
       id: current
       run: |
-        current_version=$(grep "current_version" .bumpversion.cfg | cut -d'=' -f2 | tr -d ' ')
+        current_version=$(grep "^current_version" .bumpversion.cfg | sed 's/current_version = //')
+        echo "Current version found: $current_version"
         echo "current_version=$current_version" >> $GITHUB_OUTPUT
 
     - name: Bump version
@@ -73,7 +74,8 @@ jobs:
     - name: Get new version
       id: new
       run: |
-        new_version=$(grep "current_version" .bumpversion.cfg | cut -d'=' -f2 | tr -d ' ')
+        new_version=$(grep "^current_version" .bumpversion.cfg | sed 's/current_version = //')
+        echo "New version found: $new_version"
         echo "new_version=$new_version" >> $GITHUB_OUTPUT
 
     - name: Commit and tag
