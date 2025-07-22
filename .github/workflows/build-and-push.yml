@@ -2,10 +2,7 @@ name: Build and Push to GitLab Registry
 
 on:
   push:
-    branches: [ master, main, develop ]
     tags: [ 'v*' ]
-  pull_request:
-    branches: [ master, main ]
 
 env:
   GITLAB_REGISTRY: registry.gitlab.com
@@ -15,9 +12,15 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        persist-credentials: true
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -91,13 +94,18 @@ jobs:
         # Update the helm values file
         yq eval '.ai.image.tag = "'$TAG'"' -i .helm/overlays/staging/values.yaml
         
-        # Commit and push if there are changes
-        if git diff --quiet; then
-          echo "No changes to commit"
-        else
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+        # Check if there are changes
+        if ! git diff --quiet .helm/overlays/staging/values.yaml; then
+          echo "Updating helm values with new tag: $TAG"
+          
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Commit and push
           git add .helm/overlays/staging/values.yaml
-          git commit -m "Update staging image tag to $TAG"
+          git commit -m "chore: update staging image tag to $TAG [skip ci]"
           git push origin HEAD:${GITHUB_REF#refs/heads/}
+        else
+          echo "No changes to commit"
         fi
