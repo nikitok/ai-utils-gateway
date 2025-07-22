@@ -73,3 +73,31 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+
+    - name: Update Helm values for staging
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+      run: |
+        # Install yq for YAML processing
+        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        sudo chmod a+x /usr/local/bin/yq
+        
+        # Get the tag to use
+        if [[ $GITHUB_REF == refs/tags/v* ]]; then
+          TAG=${GITHUB_REF#refs/tags/}
+        else
+          TAG="${{ steps.version.outputs.version }}"
+        fi
+        
+        # Update the helm values file
+        yq eval '.ai.image.tag = "'$TAG'"' -i .helm/overlays/staging/values.yaml
+        
+        # Commit and push if there are changes
+        if git diff --quiet; then
+          echo "No changes to commit"
+        else
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .helm/overlays/staging/values.yaml
+          git commit -m "Update staging image tag to $TAG"
+          git push origin HEAD:${GITHUB_REF#refs/heads/}
+        fi

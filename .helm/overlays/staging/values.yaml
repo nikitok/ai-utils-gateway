@@ -1,7 +1,7 @@
 # Alfa (staging) environment overlay values
 # These values override the base chart values
 
-ui:
+ai:
   replicaCount: 1
   
   # Environment specific configuration
