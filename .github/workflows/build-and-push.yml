@@ -60,5 +60,5 @@ jobs:
       if: github.event_name != 'pull_request'
       run: |
         export TAG=${{ steps.meta.outputs.version }}
-        docker tag directual-ai-utils_ai-utils:latest ${{ env.GITLAB_REGISTRY }}/${{ env.GITLAB_PROJECT_PATH }}/ai-utils:${{ github.sha }}
+        docker tag ai-utils:latest ${{ env.GITLAB_REGISTRY }}/${{ env.GITLAB_PROJECT_PATH }}/ai-utils:${{ github.sha }}
         docker push ${{ env.GITLAB_REGISTRY }}/${{ env.GITLAB_PROJECT_PATH }}/ai-utils:${{ github.sha }}
