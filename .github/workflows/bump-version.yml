@@ -1,0 +1,72 @@
+name: Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version type to bump'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install bump2version
+      run: pip install bump2version
+
+    - name: Configure git
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+
+    - name: Bump version
+      id: bump
+      run: |
+        # Get current version
+        current_version=$(grep "current_version" .bumpversion.cfg | cut -d' ' -f3)
+        echo "Current version: $current_version"
+        
+        # Bump version
+        bump2version ${{ github.event.inputs.version_type }} --verbose
+        
+        # Get new version
+        new_version=$(grep "current_version" .bumpversion.cfg | cut -d' ' -f3)
+        echo "New version: $new_version"
+        echo "new_version=$new_version" >> $GITHUB_OUTPUT
+
+    - name: Push changes
+      run: |
+        git push origin main --follow-tags
+
+    - name: Create Pull Request for version bump
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "Bump version to ${{ steps.bump.outputs.new_version }}"
+        title: "Bump version to ${{ steps.bump.outputs.new_version }}"
+        body: |
+          Automated version bump from ${{ github.event.inputs.version_type }}
+          
+          New version: ${{ steps.bump.outputs.new_version }}
+        branch: bump-version-${{ steps.bump.outputs.new_version }}
+        delete-branch: true
