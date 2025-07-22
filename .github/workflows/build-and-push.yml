@@ -79,7 +79,7 @@ jobs:
         cache-to: type=gha,mode=max
 
     - name: Update Helm values for staging
-      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
       run: |
         # Install yq for YAML processing
         sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
