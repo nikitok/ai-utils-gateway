@@ -29,6 +29,14 @@ jobs:
         username: ${{ secrets.GITLAB_USERNAME }}
         password: ${{ secrets.GITLAB_TOKEN }}
 
+    - name: Validate environment variables
+      run: |
+        if [ -z "${{ secrets.GITLAB_PROJECT_PATH }}" ]; then
+          echo "ERROR: GITLAB_PROJECT_PATH secret is not set"
+          echo "Please set GITLAB_PROJECT_PATH in GitHub Secrets (format: group/project)"
+          exit 1
+        fi
+
     - name: Extract metadata
       id: meta
       uses: docker/metadata-action@v5
