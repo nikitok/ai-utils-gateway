@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: directual-ai-utils-alfa
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:nikitok/directual-ai-utils.git
+    targetRevision: HEAD
+    path: .helm/overlays/staging
+    helm:
+      releaseName: directual-ai-utils-alfa
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: alfa
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10
